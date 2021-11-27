@@ -1,0 +1,87 @@
+version: '3'
+services:
+  app:
+    container_name: full_app
+    build: .
+    ports: 
+      - '8080:8080' 
+    restart: on-failure
+    environment:
+      - DB_HOST=fullstack-mysql
+    volumes:
+      - api:/usr/src/app/
+    links:
+      - fullstack-mysql
+    depends_on:
+      # - fullstack-postgres          # Uncomment this when using postgres.
+      - fullstack-mysql           # Uncomment this when using mysql.
+    networks:
+      - fullstack
+
+  fullstack-mysql:
+    image: mysql:latest
+    container_name: mysqldb
+    ports: 
+      - '3307:3306'
+    environment: 
+      # - MYSQL_ROOT_HOST=localhost
+      # - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=investordb
+      - MYSQL_ROOT_PASSWORD=password
+    volumes:
+      - database_mysql:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - fullstack
+
+volumes:
+  api:
+  # database_postgres:                  # Uncomment this when using postgres.
+  database_mysql:                   # Uncomment this when using mysql.
+
+# Networks to be created to facilitate communication between containers
+networks:
+  fullstack:
+    driver: bridge
+
+# version: '3'
+
+# services:
+#   mysqldb:
+#     environment:
+#       - MYSQL_PASSWORD=password
+#       - MYSQL_DATABASE=investordb
+#       - MYSQL_ROOT_PASSWORD=password
+#     build: ./migrations/mysql
+#     ports:
+#       - '3307:3306'
+#     volumes:
+#       - database_mysql:/var/lib/mysql
+#     networks:
+#       - fullstack
+
+#   app:
+#     container_name: investor-app
+#     restart: on-failure
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     ports:
+#       - '8080:8080'
+#     volumes:
+#       - api:/usr/src/app/
+#     depends_on:
+#       - mysqldb
+#     networks:
+#       - fullstack
+
+
+# volumes:
+#   api:
+#   # database_postgres:                  # Uncomment this when using postgres.
+#   database_mysql:                   # Uncomment this when using mysql.
+
+# networks:
+#   fullstack:
+#     driver: bridge
