@@ -106,24 +106,3 @@ func (h *StockHandler) DeleteFromFavourites(c echo.Context) error {
 
 	return c.NoContent(http.StatusOK)
 }
-
-func (h *StockHandler) GetFavourites(c echo.Context) error {
-	username, ok := c.Request().Context().Value(key{}).(string)
-	if !ok {
-		return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
-	}
-
-	user, err := h.userUsecase.GetByUsername(username)
-	if err != nil {
-		log.Printf("DeleteFromFavourites: %w\n", err)
-		return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
-	}
-
-	stocks, err := h.stockUsecase.GetFavouriteStocks(user.ID)
-	if err != nil {
-		log.Printf("DeleteFromFavourites: %w\n", err)
-		return c.JSON(http.StatusNotFound, Response{"Stock Not Found"})
-	}
-
-	return c.JSON(http.StatusOK, stocks)
-}

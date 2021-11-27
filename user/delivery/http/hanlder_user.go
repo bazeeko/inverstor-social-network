@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,11 +16,15 @@ type Response struct {
 }
 
 type UserHandler struct {
-	userUsecase domain.UserUsecase
+	userUsecase  domain.UserUsecase
+	stockUsecase domain.StockUsecase
 }
 
-func NewUserHandler(e *echo.Echo, uuc domain.UserUsecase) {
-	handler := &UserHandler{uuc}
+type key struct {
+}
+
+func NewUserHandler(e *echo.Echo, uuc domain.UserUsecase, suc domain.StockUsecase) {
+	handler := &UserHandler{uuc, suc}
 
 	userGroup := e.Group("/api/user")
 
@@ -31,6 +36,9 @@ func NewUserHandler(e *echo.Echo, uuc domain.UserUsecase) {
 		}
 
 		if username == s1 && password == s2 {
+			ctx := context.WithValue(c.Request().Context(), key{}, username)
+			c.SetRequest(c.Request().WithContext(ctx))
+
 			return true, nil
 		}
 
@@ -38,6 +46,8 @@ func NewUserHandler(e *echo.Echo, uuc domain.UserUsecase) {
 	}))
 
 	userGroup.GET("/:id", handler.GetUser)
+	userGroup.GET("/:id/favourite/stocks", handler.GetFavStocks)
+	userGroup.GET("/:id/favourite/users", handler.GetFavUsers)
 	// userGroup.POST("/:id", handler.AddUser)
 }
 
@@ -56,4 +66,60 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, user)
+}
+
+func (h *UserHandler) GetFavStocks(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		log.Printf("GetFavStocks: %s\n", err)
+		return c.JSON(http.StatusBadRequest, Response{"Invalid User Id"})
+	}
+
+	// username, ok := c.Request().Context().Value(key{}).(string)
+	// if !ok {
+	// 	return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
+	// }
+
+	user, err := h.userUsecase.GetById(id)
+	if err != nil {
+		log.Printf("GetFavStocks: %s\n", err)
+		return c.JSON(http.StatusNotFound, Response{"User Not Found"})
+	}
+
+	stocks, err := h.stockUsecase.GetFavouriteStocks(user.ID)
+	if err != nil {
+		log.Printf("GetFavStocks: %s\n", err)
+		return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
+	}
+
+	return c.JSON(http.StatusOK, stocks)
+}
+
+func (h *UserHandler) GetFavUsers(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		log.Printf("GetFavUsers: %s\n", err)
+		return c.JSON(http.StatusBadRequest, Response{"Invalid User Id"})
+	}
+
+	// username, ok := c.Request().Context().Value(key{}).(string)
+	// if !ok {
+	// 	return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
+	// }
+
+	user, err := h.userUsecase.GetById(id)
+	if err != nil {
+		log.Printf("GetFavUsers: %s\n", err)
+		return c.JSON(http.StatusNotFound, Response{"User Not Found"})
+	}
+
+	favUsers, err := h.userUsecase.GetFavouriteUsers(user.ID)
+	if err != nil {
+		log.Printf("GetFavUsers: %s", err)
+		return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
+	}
+
+	return c.JSON(http.StatusOK, favUsers)
 }

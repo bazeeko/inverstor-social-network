@@ -62,3 +62,41 @@ func (uc *userUsecase) GetUserCredentials(username string) (string, string, erro
 
 	return uname, pass, nil
 }
+
+func (uc *userUsecase) AddUserToFavourites(userID int, favUserID int) error {
+	err := uc.mysqlUserRepo.AddUserToFavourites(userID, favUserID)
+	if err != nil {
+		return fmt.Errorf("AddUserToFavourites: %w", err)
+	}
+
+	return nil
+}
+
+func (uc *userUsecase) DeleteUserFromFavourites(userID int, favUserID int) error {
+	err := uc.mysqlUserRepo.DeleteUserFromFavourites(userID, favUserID)
+	if err != nil {
+		return fmt.Errorf("DeleteUserFromFavourites: %w", err)
+	}
+
+	return nil
+}
+
+func (uc *userUsecase) GetFavouriteUsers(userID int) ([]domain.User, error) {
+	favUserIDs, err := uc.mysqlUserRepo.GetFavouriteUsers(userID)
+	if err != nil {
+		return []domain.User{}, fmt.Errorf("GetFavouriteUsers: %w", err)
+	}
+
+	favUsers := []domain.User{}
+
+	for _, id := range favUserIDs {
+		user, err := uc.mysqlUserRepo.GetById(id)
+		if err != nil {
+			return []domain.User{}, fmt.Errorf("GetFavouriteUsers: %w", err)
+		}
+
+		favUsers = append(favUsers, user)
+	}
+
+	return favUsers, nil
+}

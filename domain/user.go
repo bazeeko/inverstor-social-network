@@ -13,6 +13,9 @@ type MysqlUserRepository interface {
 	GetById(id int) (User, error)
 	GetByUsername(username string) (User, error)
 	GetUserCredentials(username string) (string, string, error)
+	AddUserToFavourites(userID int, favUserID int) error
+	DeleteUserFromFavourites(userID int, favUserID int) error
+	GetFavouriteUsers(userID int) ([]int, error)
 }
 
 type UserUsecase interface {
@@ -20,4 +23,7 @@ type UserUsecase interface {
 	GetById(id int) (User, error)
 	GetByUsername(username string) (User, error)
 	GetUserCredentials(username string) (string, string, error)
+	AddUserToFavourites(userID int, favUserID int) error
+	DeleteUserFromFavourites(userID int, favUserID int) error
+	GetFavouriteUsers(userID int) ([]User, error)
 }

@@ -15,6 +15,13 @@ type Comment struct {
 	CreatedAt string
 }
 
+type SubComment struct {
+	ID        int
+	CommentID int
+	Body      string
+	CreatedAt string
+}
+
 type MysqlThreadRepository interface {
 }
 

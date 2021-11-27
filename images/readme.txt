@@ -1,0 +1,1 @@
+this folder is used to store images from posts and profile pics

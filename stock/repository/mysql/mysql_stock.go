@@ -91,7 +91,7 @@ func (r *mysqlStockRepository) GetFavouriteStocks(userID int) ([]string, error) 
 	}
 
 	if err != nil {
-		return []string{}, fmt.Errorf("GetStockBySymbol: %w", err)
+		return []string{}, fmt.Errorf("GetFavouriteStocks: %w", err)
 	}
 
 	return stocks, nil

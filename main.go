@@ -143,6 +143,15 @@ func connectDB(config string) (*sql.DB, error) {
 		log.Println(err)
 	}
 
+	for i := 0; i < 10; i++ {
+		_, err = conn.Exec(`INSERT users (username, password, rating, created_at) VALUES (?, ?, ?, ?)`,
+			fmt.Sprintf("user_%d", i), "12345", 0, 0)
+
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
 	return conn, nil
 }
 
@@ -152,9 +161,9 @@ func main() {
 
 	// mysql://b37bfcbb24c371:17b6ee02@us-cdbr-east-04.cleardb.com/heroku_c64bdd5da1fe53c?reconnect=true
 
-	// config1 := "b37bfcbb24c371:17b6ee02@tcp(us-cdbr-east-04.cleardb.com)/heroku_c64bdd5da1fe53c"
+	config := "b37bfcbb24c371:17b6ee02@tcp(us-cdbr-east-04.cleardb.com)/heroku_c64bdd5da1fe53c"
 
-	config := "root:password@tcp(tcp(127.0.0.1:3306))/"
+	// config := "root:password@tcp(tcp(127.0.0.1:3306))/"
 	db, err := connectDB(config)
 	if err != nil {
 		log.Fatalf("main: %s\n", err)
@@ -164,11 +173,12 @@ func main() {
 
 	userRepoMysql := _userRepoMysql.NewMysqlUserRepository(db)
 	userUsecase := _userUsecase.NewUserUsecase(userRepoMysql)
-	_userDeliveryHttp.NewUserHandler(e, userUsecase)
 
 	stockRepoMysql := _stockRepoMysql.NewMysqlStockRepository(db)
 	stockUsecase := _stockUsecase.NewStockUsecase(stockRepoMysql)
+
 	_stockDeliveryHttp.NewStockHandler(e, stockUsecase, userUsecase)
+	_userDeliveryHttp.NewUserHandler(e, userUsecase, stockUsecase)
 
 	port := os.Getenv("PORT")
 	if port == "" {
