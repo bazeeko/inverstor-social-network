@@ -28,14 +28,14 @@ func (r *mysqlThreadRepository) CreateThread(userID int, t domain.Thread) error 
 	return nil
 }
 
-func (r *mysqlThreadRepository) GetThreadByID(userID int, threadID int) (domain.Thread, error) {
+func (r *mysqlThreadRepository) GetThreadByID(threadID int) (domain.Thread, error) {
 	t := domain.Thread{}
 
 	err := r.QueryRow(`SELECT
-		id, topic, body, image_url, created_at
+		id, hashtag, topic, body, image_url, created_at
 		FROM threads
-		WHERE user_id=? AND thread_id=?`, userID, threadID).
-		Scan(&t.ID, &t.Topic, &t.Body, &t.ImageURL, &t.CreatedAt)
+		WHERE thread_id=?`, threadID).
+		Scan(&t.ID, &t.Hashtag, &t.Topic, &t.Body, &t.ImageURL, &t.CreatedAt)
 
 	if err != nil {
 		return domain.Thread{}, fmt.Errorf("GetThreadByID: %w", err)
@@ -44,18 +44,66 @@ func (r *mysqlThreadRepository) GetThreadByID(userID int, threadID int) (domain.
 	return t, nil
 }
 
-// func (r *mysqlThreadRepository) GetThreads(userID int, threadID int) (domain.Thread, error) {
-// 	t := domain.Thread{}
+func (r *mysqlThreadRepository) DeleteThreadByID(threadID int) error {
+	_, err := r.Exec(`DELETE FROM threads
+	WHERE id=?`, threadID)
+	if err != nil {
+		return fmt.Errorf("DeleteThreadByID: %w", err)
+	}
 
-// 	err := r.QueryRow(`SELECT
-// 		id, topic, body, image_url, created_at
-// 		FROM threads
-// 		WHERE user_id=? AND thread_id=?`, userID, threadID).
-// 		Scan(t.ID, &t.Topic, &t.Body, &t.ImageURL, &t.CreatedAt)
+	return nil
+}
 
-// 	if err != nil {
-// 		return domain.Thread{}, fmt.Errorf("GetThreadByID: %w", err)
-// 	}
+func (r *mysqlThreadRepository) GetUserThreads(userID int) ([]domain.Thread, error) {
+	threads := []domain.Thread{}
 
-// 	return t, nil
-// }
+	rows, err := r.Query(`SELECT
+	id, hashtag, topic, body, image_url, created_at
+	FROM threads
+	WHERE user_id=?`, userID)
+
+	if err != nil {
+		return []domain.Thread{}, fmt.Errorf("GetUserThreads: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		t := domain.Thread{}
+
+		err := rows.Scan(&t.ID, &t.Hashtag, &t.Topic, &t.Body, &t.ImageURL, &t.CreatedAt)
+		if err != nil {
+			return []domain.Thread{}, fmt.Errorf("GetUserThreads: %w", err)
+		}
+
+		threads = append(threads, t)
+	}
+
+	return threads, nil
+}
+
+func (r *mysqlThreadRepository) GetThreadsByHashtag(hashtag string) ([]domain.Thread, error) {
+	threads := []domain.Thread{}
+
+	rows, err := r.Query(`SELECT
+	id, hashtag, topic, body, image_url, created_at
+	FROM threads
+	WHERE hashtag=?`, hashtag)
+
+	if err != nil {
+		return []domain.Thread{}, fmt.Errorf("GetThreadsByHashtag: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		t := domain.Thread{}
+
+		err := rows.Scan(&t.ID, &t.Hashtag, &t.Topic, &t.Body, &t.ImageURL, &t.CreatedAt)
+		if err != nil {
+			return []domain.Thread{}, fmt.Errorf("GetThreadsByHashtag: %w", err)
+		}
+
+		threads = append(threads, t)
+	}
+
+	return threads, nil
+}

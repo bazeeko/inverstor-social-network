@@ -71,14 +71,14 @@ func (h *StockHandler) AddToFavourites(c echo.Context) error {
 
 	user, err := h.userUsecase.GetByUsername(username)
 	if err != nil {
-		log.Printf("AddToFavourites: %w\n", err)
+		log.Printf("AddToFavourites: %s\n", err)
 		return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
 	}
 
 	err = h.stockUsecase.AddStockToFavourites(user.ID, symbol)
 	if err != nil {
-		log.Printf("AddToFavourites: %w\n", err)
-		return c.JSON(http.StatusNotFound, Response{"Stock Not Found"})
+		log.Printf("AddToFavourites: %s\n", err)
+		return c.JSON(http.StatusBadRequest, Response{"Bad Request"})
 	}
 
 	return c.NoContent(http.StatusOK)
@@ -94,14 +94,14 @@ func (h *StockHandler) DeleteFromFavourites(c echo.Context) error {
 
 	user, err := h.userUsecase.GetByUsername(username)
 	if err != nil {
-		log.Printf("DeleteFromFavourites: %w\n", err)
+		log.Printf("DeleteFromFavourites: %s\n", err)
 		return c.JSON(http.StatusInternalServerError, Response{"Internal Server Error"})
 	}
 
 	err = h.stockUsecase.DeleteStockFromFavourites(user.ID, symbol)
 	if err != nil {
-		log.Printf("DeleteFromFavourites: %w\n", err)
-		return c.JSON(http.StatusNotFound, Response{"Stock Not Found"})
+		log.Printf("DeleteFromFavourites: %s\n", err)
+		return c.JSON(http.StatusBadRequest, Response{"Bad Request"})
 	}
 
 	return c.NoContent(http.StatusOK)

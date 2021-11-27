@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_userDeliveryHttp "github.com/bazeeko/investor-social-network/user/delivery/http"
 	_userRepoMysql "github.com/bazeeko/investor-social-network/user/repository/mysql"
@@ -43,7 +44,8 @@ func connectDB(config string) (*sql.DB, error) {
 		username VARCHAR(40) NOT NULL UNIQUE,
 		password VARCHAR(40) NOT NULL,
 		rating BIGINT NOT NULL,
-		created_at INT NOT NULL,
+		profile_picture TEXT,
+		created_at VARCHAR(40) NOT NULL,
 		PRIMARY KEY (id)
 	);`)
 
@@ -51,13 +53,16 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
+	conn.Exec(`DROP TABLE threads;`)
+
 	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS threads (
 		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
 		user_id BIGINT NOT NULL,
+		hashtag TEXT NOT NULL,
 		topic TEXT NOT NULL,
 		body TEXT,
 		image_url TEXT,
-		created_at INT NOT NULL,
+		created_at VARCHAR(40) NOT NULL,
 		PRIMARY KEY (id),
 		FOREIGN KEY (user_id) REFERENCES users(id)
 	);`)
@@ -72,7 +77,7 @@ func connectDB(config string) (*sql.DB, error) {
 		topic TEXT NOT NULL,
 		body TEXT,
 		image_url TEXT,
-		created_at INT NOT NULL,
+		created_at VARCHAR(40) NOT NULL,
 		PRIMARY KEY (id),
 		FOREIGN KEY (user_id) REFERENCES users(id)
 	);`)
@@ -99,7 +104,7 @@ func connectDB(config string) (*sql.DB, error) {
 		thread_id BIGINT NOT NULL,
 		body TEXT,
 		image_url TEXT,
-		created_at INT NOT NULL,
+		created_at VARCHAR(40) NOT NULL,
 		PRIMARY KEY (id),
 		FOREIGN KEY (user_id) REFERENCES users(id),
 		FOREIGN KEY (thread_id) REFERENCES threads(id)
@@ -137,7 +142,7 @@ func connectDB(config string) (*sql.DB, error) {
 	}
 
 	_, err = conn.Exec(`INSERT users (username, password, rating, created_at) VALUES (?, ?, ?, ?)`,
-		"DWAdmin", "12345", 0, 0)
+		"DWAdmin", "12345", 0, time.Now().Format(time.RFC1123))
 
 	if err != nil {
 		log.Println(err)
@@ -145,7 +150,7 @@ func connectDB(config string) (*sql.DB, error) {
 
 	for i := 0; i < 10; i++ {
 		_, err = conn.Exec(`INSERT users (username, password, rating, created_at) VALUES (?, ?, ?, ?)`,
-			fmt.Sprintf("user_%d", i), "12345", 0, 0)
+			fmt.Sprintf("user_%d", i), "12345", 0, time.Now().Format(time.RFC1123))
 
 		if err != nil {
 			log.Println(err)

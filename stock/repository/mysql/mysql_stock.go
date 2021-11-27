@@ -46,7 +46,7 @@ func (r *mysqlStockRepository) GetStockBySymbol(symbol string) (domain.Stock, er
 
 func (r *mysqlStockRepository) AddStockToFavourites(userID int, symbol string) error {
 	_, err := r.Exec(`INSERT favourite_stocks (
-		user_id, symbol)
+		user_id, stock_symbol)
 		VALUES (?, ?)`,
 		userID, symbol)
 
@@ -59,7 +59,7 @@ func (r *mysqlStockRepository) AddStockToFavourites(userID int, symbol string) e
 
 func (r *mysqlStockRepository) DeleteStockFromFavourites(userID int, symbol string) error {
 	_, err := r.Exec(`DELETE FROM favourite_stocks
-		WHERE user_id=? AND symbol=?`,
+		WHERE user_id=? AND stock_symbol=?`,
 		userID, symbol)
 
 	if err != nil {
@@ -72,7 +72,7 @@ func (r *mysqlStockRepository) DeleteStockFromFavourites(userID int, symbol stri
 func (r *mysqlStockRepository) GetFavouriteStocks(userID int) ([]string, error) {
 	stocks := make([]string, 0)
 
-	rows, err := r.Query(`SELECT symbol FROM favourite_stocks
+	rows, err := r.Query(`SELECT stock_symbol FROM favourite_stocks
 	WHERE user_id=?`, userID)
 	if err != nil {
 		return []string{}, err

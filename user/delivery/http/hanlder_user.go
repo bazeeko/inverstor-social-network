@@ -46,8 +46,10 @@ func NewUserHandler(e *echo.Echo, uuc domain.UserUsecase, suc domain.StockUsecas
 	}))
 
 	userGroup.GET("/:id", handler.GetUser)
-	userGroup.GET("/:id/favourite/stocks", handler.GetFavStocks)
+	userGroup.GET("/:id/favourite/tickers", handler.GetFavStocks)
 	userGroup.GET("/:id/favourite/users", handler.GetFavUsers)
+	userGroup.POST("/:id/addToFavourites", handler.GetFavUsers)
+	userGroup.DELETE("/:id/deleteFromFavourites", handler.GetFavUsers)
 	// userGroup.POST("/:id", handler.AddUser)
 }
 
@@ -63,6 +65,11 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 	if err != nil {
 		log.Printf("GetUser: %s\n", err)
 		return c.JSON(http.StatusNotFound, Response{"User Not Found"})
+	}
+
+	user.FavouriteTickers, err = h.stockUsecase.GetFavouriteStocks(user.ID)
+	if err != nil {
+		log.Printf("GetUser: %s\n", err)
 	}
 
 	return c.JSON(http.StatusOK, user)

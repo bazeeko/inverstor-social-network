@@ -34,9 +34,9 @@ func (uc *userUsecase) GetById(id int) (domain.User, error) {
 		return domain.User{}, fmt.Errorf("GetById: %w", err)
 	}
 
-	if user == (domain.User{}) {
-		return domain.User{}, fmt.Errorf("user not found")
-	}
+	// if user == (domain.User{}) {
+	// 	return domain.User{}, fmt.Errorf("user not found")
+	// }
 
 	return user, nil
 }
@@ -47,9 +47,9 @@ func (uc *userUsecase) GetByUsername(username string) (domain.User, error) {
 		return domain.User{}, fmt.Errorf("GetByUsername: %w", err)
 	}
 
-	if user == (domain.User{}) {
-		return domain.User{}, fmt.Errorf("user not found")
-	}
+	// if user == (domain.User{}) {
+	// 	return domain.User{}, fmt.Errorf("user not found")
+	// }
 
 	return user, nil
 }

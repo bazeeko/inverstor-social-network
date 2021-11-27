@@ -2,6 +2,7 @@ package domain
 
 type Thread struct {
 	ID        int
+	Hashtag   string
 	Topic     string
 	Body      string
 	ImageURL  string
@@ -23,6 +24,9 @@ type SubComment struct {
 }
 
 type MysqlThreadRepository interface {
+	CreateThread(userID int, t Thread) error
+	GetThreadByID(threadID int) (Thread, error)
+	DeleteThreadByID(threadID int) error
 }
 
 type ThreadUsecase interface {
