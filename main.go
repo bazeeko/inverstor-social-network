@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_userDeliveryHttp "github.com/bazeeko/investor-social-network/user/delivery/http"
 	_userRepoMysql "github.com/bazeeko/investor-social-network/user/repository/mysql"
@@ -32,7 +33,7 @@ func connectDB(config string) (*sql.DB, error) {
 	// 	return nil, fmt.Errorf("connectDB: %w", err)
 	// }
 
-	_, err = conn.Exec(`USE heroku_449b7b52dda3dc9`)
+	_, err = conn.Exec(`USE heroku_c64bdd5da1fe53c`)
 	if err != nil {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
@@ -108,6 +109,26 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
+	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS favourite_stocks (
+		user_id BIGINT NOT NULL,
+		stock_symbol VARCHAR(10) NOT NULL,
+		PRIMARY KEY (user_id, stock_symbol)
+	);`)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS favourite_people (
+		user_id BIGINT NOT NULL,
+		favourite_user_id BIGINT NOT NULL,
+		PRIMARY KEY (user_id, favourite_user_id)
+	);`)
+
+	if err != nil {
+		log.Println(err)
+	}
+
 	_, err = conn.Exec(`INSERT stocks (symbol, name, info, image_url) VALUES (?, ?, ?, ?)`,
 		"AAPL", "Apple Inc.", "Apple Bla bla bla bla bla", "https://example.com/")
 
@@ -129,9 +150,11 @@ func main() {
 	// tcp(127.0.0.1:3306)
 	// dbURL := os.Getenv("CLEARDB_DATABASE_URL")
 
-	config1 := "bd57b99c55080f:d3327b71@tcp(eu-cdbr-west-01.cleardb.com)/heroku_449b7b52dda3dc9"
+	// mysql://b37bfcbb24c371:17b6ee02@us-cdbr-east-04.cleardb.com/heroku_c64bdd5da1fe53c?reconnect=true
 
-	config := "root:password@tcp(mysqldb)/"
+	// config1 := "b37bfcbb24c371:17b6ee02@tcp(us-cdbr-east-04.cleardb.com)/heroku_c64bdd5da1fe53c"
+
+	config := "root:password@tcp(tcp(127.0.0.1:3306))/"
 	db, err := connectDB(config)
 	if err != nil {
 		log.Fatalf("main: %s\n", err)
@@ -145,8 +168,13 @@ func main() {
 
 	stockRepoMysql := _stockRepoMysql.NewMysqlStockRepository(db)
 	stockUsecase := _stockUsecase.NewStockUsecase(stockRepoMysql)
-	_stockDeliveryHttp.NewStockHandler(e, stockUsecase)
+	_stockDeliveryHttp.NewStockHandler(e, stockUsecase, userUsecase)
 
-	log.Fatalln(e.Start(":8080"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Fatalln(e.Start(":" + port))
 	// conn, err := sql.Open("mysql", config)
 }

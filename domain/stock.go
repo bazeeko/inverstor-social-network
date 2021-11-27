@@ -9,8 +9,14 @@ type Stock struct {
 
 type MysqlStockRepository interface {
 	GetStockBySymbol(symbol string) (Stock, error)
+	AddStockToFavourites(userID int, symbol string) error
+	DeleteStockFromFavourites(userID int, symbol string) error
+	GetFavouriteStocks(userID int) ([]string, error)
 }
 
 type StockUsecase interface {
 	GetStockBySymbol(symbol string) (Stock, error)
+	AddStockToFavourites(userID int, symbol string) error
+	DeleteStockFromFavourites(userID int, symbol string) error
+	GetFavouriteStocks(userID int) ([]string, error)
 }

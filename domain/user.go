@@ -11,11 +11,13 @@ type User struct {
 type MysqlUserRepository interface {
 	Add(User) error
 	GetById(id int) (User, error)
+	GetByUsername(username string) (User, error)
 	GetUserCredentials(username string) (string, string, error)
 }
 
 type UserUsecase interface {
 	Add(User) error
 	GetById(id int) (User, error)
+	GetByUsername(username string) (User, error)
 	GetUserCredentials(username string) (string, string, error)
 }

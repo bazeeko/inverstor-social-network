@@ -43,3 +43,56 @@ func (r *mysqlStockRepository) GetStockBySymbol(symbol string) (domain.Stock, er
 
 	return s, nil
 }
+
+func (r *mysqlStockRepository) AddStockToFavourites(userID int, symbol string) error {
+	_, err := r.Exec(`INSERT favourite_stocks (
+		user_id, symbol)
+		VALUES (?, ?)`,
+		userID, symbol)
+
+	if err != nil {
+		return fmt.Errorf("AddStockToFavourites: %w", err)
+	}
+
+	return nil
+}
+
+func (r *mysqlStockRepository) DeleteStockFromFavourites(userID int, symbol string) error {
+	_, err := r.Exec(`DELETE FROM favourite_stocks
+		WHERE user_id=? AND symbol=?`,
+		userID, symbol)
+
+	if err != nil {
+		return fmt.Errorf("DeleteStockFromFavourites: %w", err)
+	}
+
+	return nil
+}
+
+func (r *mysqlStockRepository) GetFavouriteStocks(userID int) ([]string, error) {
+	stocks := make([]string, 0)
+
+	rows, err := r.Query(`SELECT symbol FROM favourite_stocks
+	WHERE user_id=?`, userID)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var symbol string
+
+		err := rows.Scan(&symbol)
+		if err != nil {
+			return []string{}, err
+		}
+
+		stocks = append(stocks, symbol)
+	}
+
+	if err != nil {
+		return []string{}, fmt.Errorf("GetStockBySymbol: %w", err)
+	}
+
+	return stocks, nil
+}

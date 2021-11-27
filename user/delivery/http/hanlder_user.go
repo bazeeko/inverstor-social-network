@@ -46,18 +46,14 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 
 	if err != nil {
 		log.Printf("GetUser: %s\n", err)
-		return c.JSON(http.StatusBadRequest, Response{"invalid user id"})
+		return c.JSON(http.StatusBadRequest, Response{"Invalid User Id"})
 	}
 
 	user, err := h.userUsecase.GetById(id)
 	if err != nil {
 		log.Printf("GetUser: %s\n", err)
-		return c.JSON(http.StatusNotFound, Response{"some error"})
+		return c.JSON(http.StatusNotFound, Response{"User Not Found"})
 	}
 
 	return c.JSON(http.StatusOK, user)
 }
-
-// func (h *UserHandler) AddUser(c echo.Context) error {
-// 	return nil
-// }

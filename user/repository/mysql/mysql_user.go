@@ -39,6 +39,19 @@ func (r *mysqlUserRepository) GetById(id int) (domain.User, error) {
 	return u, nil
 }
 
+func (r *mysqlUserRepository) GetByUsername(username string) (domain.User, error) {
+	u := domain.User{}
+
+	err := r.QueryRow(`SELECT id, username, rating, created_at FROM users WHERE username=?`, username).
+		Scan(&u.ID, &u.Username, &u.Rating, &u.CreatedAt)
+
+	if err != nil {
+		return domain.User{}, fmt.Errorf("GetById: %w", err)
+	}
+
+	return u, nil
+}
+
 func (r *mysqlUserRepository) GetUserCredentials(username string) (string, string, error) {
 	var password string
 

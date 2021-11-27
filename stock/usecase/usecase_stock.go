@@ -27,4 +27,32 @@ func (uc *stockUsecase) GetStockBySymbol(symbol string) (domain.Stock, error) {
 	return s, nil
 }
 
+func (uc *stockUsecase) AddStockToFavourites(userID int, symbol string) error {
+	err := uc.mysqlStockRepo.AddStockToFavourites(userID, symbol)
+	if err != nil {
+		return fmt.Errorf("AddStockToFavourites: %w", err)
+	}
+
+	return nil
+}
+
+func (uc *stockUsecase) DeleteStockFromFavourites(userID int, symbol string) error {
+	err := uc.mysqlStockRepo.DeleteStockFromFavourites(userID, symbol)
+
+	if err != nil {
+		return fmt.Errorf("DeleteStockFromFavourites: %w", err)
+	}
+
+	return nil
+}
+
+func (uc *stockUsecase) GetFavouriteStocks(userID int) ([]string, error) {
+	stocks, err := uc.mysqlStockRepo.GetFavouriteStocks(userID)
+	if err != nil {
+		return []string{}, err
+	}
+
+	return stocks, nil
+}
+
 // name, avatar, rating,
