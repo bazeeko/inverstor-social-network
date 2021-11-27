@@ -27,12 +27,12 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	_, err = conn.Exec(`CREATE DATABASE IF NOT EXISTS investordb`)
-	if err != nil {
-		return nil, fmt.Errorf("connectDB: %w", err)
-	}
+	// _, err = conn.Exec(`CREATE DATABASE IF NOT EXISTS investordb`)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("connectDB: %w", err)
+	// }
 
-	_, err = conn.Exec(`USE investordb`)
+	_, err = conn.Exec(`USE heroku_449b7b52dda3dc9`)
 	if err != nil {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
@@ -127,6 +127,10 @@ func connectDB(config string) (*sql.DB, error) {
 
 func main() {
 	// tcp(127.0.0.1:3306)
+	// dbURL := os.Getenv("CLEARDB_DATABASE_URL")
+
+	config1 := "bd57b99c55080f:d3327b71@tcp(eu-cdbr-west-01.cleardb.com)/heroku_449b7b52dda3dc9"
+
 	config := "root:password@tcp(mysqldb)/"
 	db, err := connectDB(config)
 	if err != nil {
