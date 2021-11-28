@@ -43,7 +43,17 @@ func connectDB(config string) (*sql.DB, error) {
 	// 	return nil, fmt.Errorf("connectDB: %w", err)
 	// }
 
-	_, err = conn.Exec(`USE heroku_c64bdd5da1fe53c`)
+	// _, err = conn.Exec(`DROP DATABASE heroku_c64bdd5da1fe53c;`)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("connectDB: %w", err)
+	// }
+
+	_, err = conn.Exec(`CREATE DATABASE IF NOT EXISTS heroku_c64bdd5da1fe53c;`)
+	if err != nil {
+		return nil, fmt.Errorf("connectDB: %w", err)
+	}
+
+	_, err = conn.Exec(`USE heroku_c64bdd5da1fe53c;`)
 	if err != nil {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
@@ -62,7 +72,10 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	// conn.Exec(`DROP TABLE threads;`)
+	// _, err = conn.Exec(`DROP TABLE threads;`)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 
 	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS threads (
 		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -100,8 +113,10 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	// conn.Exec(`DROP TABLE category;`)
-
+	// _, err = conn.Exec(`DROP TABLE category;`)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 	// _, err = conn.Exec(`CREATE TABLE IF NOT EXISTS category (
 	// 	id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
 	// 	user_id BIGINT NOT NULL,
@@ -113,17 +128,22 @@ func connectDB(config string) (*sql.DB, error) {
 	// 	FOREIGN KEY (user_id) REFERENCES users(id)
 	// );`)
 
-	if err != nil {
-		return nil, fmt.Errorf("connectDB: %w", err)
-	}
+	// if err != nil {
+	// 	return nil, fmt.Errorf("connectDB: %w", err)
+	// }
 
-	// conn.Exec(`DROP TABLE stocks;`)
+	// _, err = conn.Exec(`DROP TABLE stocks;`)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// if err != nil {
+	// 	return nil, fmt.Errorf("connectDB: %w", err)
+	// }
 
-	if err != nil {
-		return nil, fmt.Errorf("connectDB: %w", err)
-	}
-
-	// conn.Exec(`DROP TABLE comments;`)
+	// _, err = conn.Exec(`DROP TABLE comments;`)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 
 	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS comments (
 		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,

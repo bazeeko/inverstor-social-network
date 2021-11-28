@@ -18,7 +18,7 @@ func NewMysqlThreadRepository(db *sql.DB) domain.MysqlThreadRepository {
 func (r *mysqlThreadRepository) CreateThread(userID int, t domain.Thread) error {
 	_, err := r.Exec(`INSERT threads (
 		user_id, hashtag, topic, body, image_url, created_at) 
-		VALUES (?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?)`,
 		userID, t.Hashtag, t.Topic, t.Body, t.ImageURL, t.CreatedAt)
 
 	if err != nil {
@@ -34,8 +34,8 @@ func (r *mysqlThreadRepository) GetThreadByID(threadID int) (domain.Thread, erro
 	err := r.QueryRow(`SELECT
 		id, user_id, hashtag, topic, body, image_url, created_at
 		FROM threads
-		WHERE thread_id=?`, threadID).
-		Scan(&t.ID, &t.Hashtag, &t.Topic, &t.Body, &t.ImageURL, &t.CreatedAt)
+		WHERE id=?`, threadID).
+		Scan(&t.ID, &t.UserID, &t.Hashtag, &t.Topic, &t.Body, &t.ImageURL, &t.CreatedAt)
 
 	if err != nil {
 		return domain.Thread{}, fmt.Errorf("GetThreadByID: %w", err)
