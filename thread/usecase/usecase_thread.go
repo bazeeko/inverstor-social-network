@@ -35,6 +35,8 @@ func (uc *threadUsecase) GetThreadByID(threadID int) (domain.Thread, error) {
 		log.Println(err)
 	}
 
+	t.Likes, _ = uc.mysqlThreadRepo.GetAmountOfLikes(t.ID)
+
 	for i := range t.Comments {
 		t.Comments[i].SubComments, _ = uc.mysqlThreadRepo.GetSubCommentsByCommentID(t.Comments[i].ID)
 		log.Println(err)

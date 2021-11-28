@@ -42,6 +42,7 @@ type MysqlThreadRepository interface {
 	DeleteLikeFromThread(userID int, threadID int) error
 	GetCommentsByThreadID(threadID int) ([]Comment, error)
 	GetSubCommentsByCommentID(commentID int) ([]SubComment, error)
+	GetAmountOfLikes(threadID int) (int, error)
 }
 
 type ThreadUsecase interface {

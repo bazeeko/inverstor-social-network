@@ -223,6 +223,21 @@ func (r *mysqlThreadRepository) DeleteLikeFromThread(userID int, threadID int) e
 	return nil
 }
 
+func (r *mysqlThreadRepository) GetAmountOfLikes(threadID int) (int, error) {
+	rows, err := r.Query(`SELECT COUNT(*) AS count_like FROM thread_likes WHERE thread_id=?`, threadID)
+	if err != nil {
+		return 0, fmt.Errorf("GetAmountOfLikes: %w", err)
+	}
+	defer rows.Close()
+
+	var amount int
+	for rows.Next() {
+		rows.Scan(&amount)
+	}
+
+	return amount, nil
+}
+
 // _, err = conn.Exec(`CREATE TABLE IF NOT EXISTS comments (
 // 	id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
 // 	user_id BIGINT NOT NULL,
