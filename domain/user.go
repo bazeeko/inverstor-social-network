@@ -17,6 +17,8 @@ type MysqlUserRepository interface {
 	AddUserToFavourites(userID int, favUserID int) error
 	DeleteUserFromFavourites(userID int, favUserID int) error
 	GetFavouriteUsers(userID int) ([]int, error)
+	AddLikeToUser(userID int, likedUserID int) error
+	DeleteLikeFromUser(userID int, likedUserID int) error
 }
 
 type UserUsecase interface {
@@ -27,4 +29,6 @@ type UserUsecase interface {
 	AddUserToFavourites(userID int, favUserID int) error
 	DeleteUserFromFavourites(userID int, favUserID int) error
 	GetFavouriteUsers(userID int) ([]User, error)
+	AddLikeToUser(userID int, likedUserID int) error
+	DeleteLikeFromUser(userID int, likedUserID int) error
 }

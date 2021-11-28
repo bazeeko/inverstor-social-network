@@ -117,3 +117,33 @@ func (r *mysqlUserRepository) GetFavouriteUsers(userID int) ([]int, error) {
 
 	return users, nil
 }
+
+func (r *mysqlUserRepository) AddLikeToUser(userID int, likedUserID int) error {
+	_, err := r.Exec(`INSERT user_likes (
+		user_id, liked_user_id)
+		VALUES (?, ?)`, userID, likedUserID)
+
+	if err != nil {
+		return fmt.Errorf("AddLikeToUser: %w", err)
+	}
+
+	r.Exec(`UPDATE users SET rating=rating+1 WHERE id=?`, likedUserID)
+
+	return nil
+}
+
+func (r *mysqlUserRepository) DeleteLikeFromUser(userID int, likedUserID int) error {
+	_, err := r.Exec(`DELETE FROM user_likes
+	WHERE user_id=? AND liked_user_id=?`, userID, likedUserID)
+
+	if err != nil {
+		return fmt.Errorf("DeleteLikeFromUser: %w", err)
+	}
+
+	r.Exec(`UPDATE users SET rating=rating-1 WHERE id=?`, likedUserID)
+
+	return nil
+}
+
+// `DELETE FROM favourite_stocks
+// WHERE user_id=? AND stock_symbol=?`,

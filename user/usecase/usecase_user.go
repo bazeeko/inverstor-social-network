@@ -42,43 +42,19 @@ func (uc *userUsecase) GetById(id int) (domain.User, error) {
 }
 
 func (uc *userUsecase) GetByUsername(username string) (domain.User, error) {
-	user, err := uc.mysqlUserRepo.GetByUsername(username)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("GetByUsername: %w", err)
-	}
-
-	// if user == (domain.User{}) {
-	// 	return domain.User{}, fmt.Errorf("user not found")
-	// }
-
-	return user, nil
+	return uc.mysqlUserRepo.GetByUsername(username)
 }
 
 func (uc *userUsecase) GetUserCredentials(username string) (string, string, error) {
-	uname, pass, err := uc.mysqlUserRepo.GetUserCredentials(username)
-	if err != nil {
-		return "", "", fmt.Errorf("GetUserCredentials: %w", err)
-	}
-
-	return uname, pass, nil
+	return uc.mysqlUserRepo.GetUserCredentials(username)
 }
 
 func (uc *userUsecase) AddUserToFavourites(userID int, favUserID int) error {
-	err := uc.mysqlUserRepo.AddUserToFavourites(userID, favUserID)
-	if err != nil {
-		return fmt.Errorf("AddUserToFavourites: %w", err)
-	}
-
-	return nil
+	return uc.mysqlUserRepo.AddUserToFavourites(userID, favUserID)
 }
 
 func (uc *userUsecase) DeleteUserFromFavourites(userID int, favUserID int) error {
-	err := uc.mysqlUserRepo.DeleteUserFromFavourites(userID, favUserID)
-	if err != nil {
-		return fmt.Errorf("DeleteUserFromFavourites: %w", err)
-	}
-
-	return nil
+	return uc.mysqlUserRepo.DeleteUserFromFavourites(userID, favUserID)
 }
 
 func (uc *userUsecase) GetFavouriteUsers(userID int) ([]domain.User, error) {
@@ -99,4 +75,12 @@ func (uc *userUsecase) GetFavouriteUsers(userID int) ([]domain.User, error) {
 	}
 
 	return favUsers, nil
+}
+
+func (uc *userUsecase) AddLikeToUser(userID int, likedUserID int) error {
+	return uc.mysqlUserRepo.AddLikeToUser(userID, likedUserID)
+}
+
+func (uc *userUsecase) DeleteLikeFromUser(userID int, likedUserID int) error {
+	return uc.mysqlUserRepo.DeleteLikeFromUser(userID, likedUserID)
 }

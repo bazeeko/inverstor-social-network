@@ -43,7 +43,7 @@ func connectDB(config string) (*sql.DB, error) {
 		id BIGINT NOT NULL UNIQUE AUTO_INCREMENT,
 		username VARCHAR(40) NOT NULL UNIQUE,
 		password VARCHAR(40) NOT NULL,
-		rating BIGINT NOT NULL,
+		rating DECIMAL NOT NULL,
 		profile_picture TEXT,
 		created_at VARCHAR(40) NOT NULL,
 		PRIMARY KEY (id)
@@ -71,43 +71,77 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS category (
-		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
+	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS thread_likes (
 		user_id BIGINT NOT NULL,
-		topic TEXT NOT NULL,
-		body TEXT,
-		image_url TEXT,
-		created_at VARCHAR(40) NOT NULL,
-		PRIMARY KEY (id),
-		FOREIGN KEY (user_id) REFERENCES users(id)
+		thread_id BIGINT NOT NULL,
+		PRIMARY KEY (user_id, thread_id)
 	);`)
 
 	if err != nil {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS stocks (
-		symbol VARCHAR(10) NOT NULL UNIQUE,
-		name TEXT,
-		info TEXT,
-		image_url TEXT,
-		PRIMARY KEY (symbol)
+	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS user_likes (
+		user_id BIGINT NOT NULL,
+		liked_user_id BIGINT NOT NULL,
+		PRIMARY KEY (user_id, liked_user_id)
 	);`)
 
 	if err != nil {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
+
+	conn.Exec(`DROP TABLE category;`)
+
+	// _, err = conn.Exec(`CREATE TABLE IF NOT EXISTS category (
+	// 	id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
+	// 	user_id BIGINT NOT NULL,
+	// 	topic TEXT NOT NULL,
+	// 	body TEXT,
+	// 	image_url TEXT,
+	// 	created_at VARCHAR(40) NOT NULL,
+	// 	PRIMARY KEY (id),
+	// 	FOREIGN KEY (user_id) REFERENCES users(id)
+	// );`)
+
+	if err != nil {
+		return nil, fmt.Errorf("connectDB: %w", err)
+	}
+
+	conn.Exec(`DROP TABLE stocks;`)
+
+	if err != nil {
+		return nil, fmt.Errorf("connectDB: %w", err)
+	}
+
+	conn.Exec(`DROP TABLE comments;`)
 
 	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS comments (
 		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
 		user_id BIGINT NOT NULL,
 		thread_id BIGINT NOT NULL,
 		body TEXT,
-		image_url TEXT,
 		created_at VARCHAR(40) NOT NULL,
 		PRIMARY KEY (id),
 		FOREIGN KEY (user_id) REFERENCES users(id),
 		FOREIGN KEY (thread_id) REFERENCES threads(id)
+	);`)
+
+	if err != nil {
+		return nil, fmt.Errorf("connectDB: %w", err)
+	}
+
+	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS sub_comments (
+		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
+		user_id BIGINT NOT NULL,
+		thread_id BIGINT NOT NULL,
+		comment_id BIGINT NOT NULL,
+		body TEXT,
+		created_at VARCHAR(40) NOT NULL,
+		PRIMARY KEY (id),
+		FOREIGN KEY (user_id) REFERENCES users(id),
+		FOREIGN KEY (thread_id) REFERENCES threads(id)
+		FOREIGN KEY (comment_id) REFERENCES comments(id)
 	);`)
 
 	if err != nil {
