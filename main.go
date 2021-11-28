@@ -14,6 +14,10 @@ import (
 	_stockDeliveryHttp "github.com/bazeeko/investor-social-network/stock/delivery/http"
 	_stockRepoMysql "github.com/bazeeko/investor-social-network/stock/repository/mysql"
 	_stockUsecase "github.com/bazeeko/investor-social-network/stock/usecase"
+
+	_threadDeliveryHttp "github.com/bazeeko/investor-social-network/thread/delivery/http"
+	_threadRepoMysql "github.com/bazeeko/investor-social-network/thread/repository/mysql"
+	_threadUsecase "github.com/bazeeko/investor-social-network/thread/usecase"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 )
@@ -30,6 +34,11 @@ func connectDB(config string) (*sql.DB, error) {
 	}
 
 	// _, err = conn.Exec(`CREATE DATABASE IF NOT EXISTS investordb`)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("connectDB: %w", err)
+	// }
+
+	// _, err = conn.Exec(`USE investordb`)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("connectDB: %w", err)
 	// }
@@ -53,7 +62,7 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	conn.Exec(`DROP TABLE threads;`)
+	// conn.Exec(`DROP TABLE threads;`)
 
 	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS threads (
 		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -91,7 +100,7 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	conn.Exec(`DROP TABLE category;`)
+	// conn.Exec(`DROP TABLE category;`)
 
 	// _, err = conn.Exec(`CREATE TABLE IF NOT EXISTS category (
 	// 	id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -108,13 +117,13 @@ func connectDB(config string) (*sql.DB, error) {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	conn.Exec(`DROP TABLE stocks;`)
+	// conn.Exec(`DROP TABLE stocks;`)
 
 	if err != nil {
 		return nil, fmt.Errorf("connectDB: %w", err)
 	}
 
-	conn.Exec(`DROP TABLE comments;`)
+	// conn.Exec(`DROP TABLE comments;`)
 
 	_, err = conn.Exec(`CREATE TABLE IF NOT EXISTS comments (
 		id BIGINT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -140,7 +149,7 @@ func connectDB(config string) (*sql.DB, error) {
 		created_at VARCHAR(40) NOT NULL,
 		PRIMARY KEY (id),
 		FOREIGN KEY (user_id) REFERENCES users(id),
-		FOREIGN KEY (thread_id) REFERENCES threads(id)
+		FOREIGN KEY (thread_id) REFERENCES threads(id),
 		FOREIGN KEY (comment_id) REFERENCES comments(id)
 	);`)
 
@@ -202,7 +211,7 @@ func main() {
 
 	config := "b37bfcbb24c371:17b6ee02@tcp(us-cdbr-east-04.cleardb.com)/heroku_c64bdd5da1fe53c"
 
-	// config := "root:password@tcp(tcp(127.0.0.1:3306))/"
+	// config := "root:password@tcp(127.0.0.1:3306)/"
 	db, err := connectDB(config)
 	if err != nil {
 		log.Fatalf("main: %s\n", err)
@@ -216,8 +225,12 @@ func main() {
 	stockRepoMysql := _stockRepoMysql.NewMysqlStockRepository(db)
 	stockUsecase := _stockUsecase.NewStockUsecase(stockRepoMysql)
 
-	_stockDeliveryHttp.NewStockHandler(e, stockUsecase, userUsecase)
+	threadRepoMysql := _threadRepoMysql.NewMysqlThreadRepository(db)
+	threadUsecase := _threadUsecase.NewThreadUsecase(threadRepoMysql)
+
 	_userDeliveryHttp.NewUserHandler(e, userUsecase, stockUsecase)
+	_stockDeliveryHttp.NewStockHandler(e, stockUsecase, userUsecase)
+	_threadDeliveryHttp.NewThreadHandler(e, threadUsecase, userUsecase)
 
 	port := os.Getenv("PORT")
 	if port == "" {

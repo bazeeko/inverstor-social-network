@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/bazeeko/investor-social-network/domain"
 	"github.com/labstack/echo/v4"
@@ -24,7 +25,7 @@ type ThreadHandler struct {
 type key struct {
 }
 
-func NewThreadHandler(e echo.Echo, tuc domain.ThreadUsecase, uuc domain.UserUsecase) {
+func NewThreadHandler(e *echo.Echo, tuc domain.ThreadUsecase, uuc domain.UserUsecase) {
 	handler := &ThreadHandler{tuc, uuc}
 
 	threadGroup := e.Group("/api/thread")
@@ -93,6 +94,8 @@ func (h *ThreadHandler) PostThread(c echo.Context) error {
 		log.Printf("PostThread: %s\n", err)
 		return c.JSON(http.StatusBadRequest, Response{"Bad Request"})
 	}
+
+	t.CreatedAt = time.Now().Format(time.RFC1123)
 
 	err = h.threadUsecase.CreateThread(user.ID, t)
 	if err != nil {
@@ -207,6 +210,7 @@ func (h *ThreadHandler) PostComment(c echo.Context) error {
 
 	comment.ThreadID = id
 	comment.UserID = user.ID
+	comment.CreatedAt = time.Now().Format(time.RFC1123)
 
 	err = h.threadUsecase.CreateComment(comment)
 	if err != nil {
@@ -260,6 +264,7 @@ func (h *ThreadHandler) PostSubComment(c echo.Context) error {
 	subComment.ThreadID = threadID
 	subComment.CommentID = commentID
 	subComment.UserID = user.ID
+	subComment.CreatedAt = time.Now().Format(time.RFC1123)
 
 	err = h.threadUsecase.CreateSubComment(subComment)
 	if err != nil {

@@ -48,10 +48,12 @@ func NewUserHandler(e *echo.Echo, uuc domain.UserUsecase, suc domain.StockUsecas
 	userGroup.GET("/:id", handler.GetUser)
 	userGroup.GET("/:id/favourite/tickers", handler.GetFavStocks)
 	userGroup.GET("/:id/favourite/users", handler.GetFavUsers)
-	userGroup.POST("/:id/addToFavourites", handler.GetFavUsers)
-	userGroup.DELETE("/:id/deleteFromFavourites", handler.GetFavUsers)
+	// userGroup.POST("/:id/addToFavourites", handler.GetFavUsers)
+	// userGroup.DELETE("/:id/deleteFromFavourites", handler.GetFavUsers)
+
 	userGroup.POST("/:id/like", handler.LikeUser)
 	userGroup.DELETE("/:id/like", handler.DeleteLikeUser)
+
 	// userGroup.POST("/:id", handler.AddUser)
 }
 
@@ -158,7 +160,7 @@ func (h *UserHandler) LikeUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{"Bad Request"})
 	}
 
-	err = h.userUsecase.AddLikeToUser(user1.ID, user2.ID)
+	err = h.userUsecase.AddUserToFavourites(user1.ID, user2.ID)
 	if err != nil {
 		log.Printf("LikeUser: %s\n", err)
 		return c.JSON(http.StatusBadRequest, Response{"Bad Request"})
@@ -192,7 +194,7 @@ func (h *UserHandler) DeleteLikeUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, Response{"Bad Request"})
 	}
 
-	err = h.userUsecase.DeleteLikeFromUser(user1.ID, user2.ID)
+	err = h.userUsecase.DeleteUserFromFavourites(user1.ID, user2.ID)
 	if err != nil {
 		log.Printf("DeleteLikeUser: %s\n", err)
 		return c.JSON(http.StatusBadRequest, Response{"Bad Request"})

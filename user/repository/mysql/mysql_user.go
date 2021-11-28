@@ -75,6 +75,8 @@ func (r *mysqlUserRepository) AddUserToFavourites(userID int, favUserID int) err
 		return fmt.Errorf("AddUserToFavourites: %w", err)
 	}
 
+	r.Exec(`UPDATE users SET rating=rating+1 WHERE id=?`, favUserID)
+
 	return nil
 }
 
@@ -86,6 +88,8 @@ func (r *mysqlUserRepository) DeleteUserFromFavourites(userID int, favUserID int
 	if err != nil {
 		return fmt.Errorf("DeleteUserFromFavourites: %w", err)
 	}
+
+	r.Exec(`UPDATE users SET rating=rating-1 WHERE id=?`, favUserID)
 
 	return nil
 }
